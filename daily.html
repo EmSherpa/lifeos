@@ -30,11 +30,6 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
-  /* ... your existing body styles ... */
-  animation: appFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
 @keyframes appFadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -54,6 +49,7 @@ body {
       flex-direction: column;
       align-items: center;
       padding: 16px 12px 32px;
+      animation: appFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
 
     /* Nav Back */
