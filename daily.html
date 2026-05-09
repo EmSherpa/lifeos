@@ -351,6 +351,10 @@
       icon = '✨'; label = 'SERVER EVENT · ' + today.toUpperCase();
       text = 'Exploratory · 9:25 – 10:05';
     }
+    else if (today === "Saturday") {
+      icon = '🎙️'; label = 'WEEKEND';
+      text = 'Special activities and mini-games all day!';
+    }
 
     if (text) {
       document.getElementById('world-event-container').innerHTML = `
