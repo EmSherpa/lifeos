@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>Teacher Quest | IWS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg:       #06060a;
+      --surface:  #111720;
+      --card:     #161d2a;
+      --border:   #1e2d42;
+      --gold:     #e3b341;
+      --gold-dim: #7a5c1a;
+      --cyan:     #58a6ff;
+      --green:    #3fb950;
+      --red:      #f85149;
+      --amber:    #d29922;
+      --muted:    #4a5568;
+      --text:     #cdd9e5;
+      --text-dim: #768390;
+      --glow-gold: 0 0 12px rgba(227,179,65,0.35);
+      --glow-cyan: 0 0 12px rgba(88,166,255,0.3);
+      --glow-green: 0 0 12px rgba(63,185,80,0.3);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  /* ... your existing body styles ... */
+  animation: appFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes appFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+    body {
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(88,166,255,0.06) 0%, transparent 60%),
+        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+      background-size: auto, 32px 32px, 32px 32px;
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px 12px 32px;
+    }
+
+    /* Nav Back */
+    .nav-back { align-self: flex-start; color: var(--text-dim); text-decoration: none; font-size: 0.95rem; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 5px; text-transform: uppercase; letter-spacing: 1px;}
+    .nav-back:hover { color: var(--cyan); }
+
+    /* ── HEADER ── */
+    .header { width: 100%; max-width: 420px; margin-bottom: 16px; text-align: center; position: relative; }
+    .header-eyebrow { font-family: 'VT323', monospace; font-size: 1rem; color: var(--cyan); letter-spacing: 4px; margin-bottom: 4px; opacity: 0.8; }
+    .header-title { font-family: 'VT323', monospace; font-size: 2.8rem; color: var(--gold); letter-spacing: 3px; line-height: 1; text-shadow: var(--glow-gold); }
+    .header-sub { font-size: 0.85rem; color: var(--text-dim); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+    .live-clock { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; margin-top: 10px; font-family: 'VT323', monospace; font-size: 1.3rem; color: var(--cyan); }
+    .live-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: blink 1s step-start infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ── PANEL ── */
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; width: 100%; max-width: 420px; margin-bottom: 12px; position: relative; overflow: hidden; }
+    .panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--border), transparent); }
+
+    /* ── ENERGY BAR ── */
+    .energy-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .energy-label { font-family: 'VT323', monospace; font-size: 1.1rem; color: var(--text-dim); letter-spacing: 2px; }
+    .energy-value { font-family: 'VT323', monospace; font-size: 1.4rem; color: var(--gold); }
+    .energy-track { width: 100%; height: 10px; background: rgba(0,0,0,0.4); border-radius: 5px; overflow: hidden; border: 1px solid var(--border); }
+    .energy-fill { height: 100%; border-radius: 5px; transition: width 1.2s ease, background 1s ease; background: var(--green); position: relative; }
+    .energy-fill::after { content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 20px; background: rgba(255,255,255,0.2); border-radius: 0 5px 5px 0; }
+    .energy-time { font-size: 0.78rem; color: var(--text-dim); text-align: right; margin-top: 5px; font-weight: 500; }
+
+    /* ── WORLD EVENT ── */
+    .world-event { width: 100%; max-width: 420px; margin-bottom: 12px; background: linear-gradient(135deg, rgba(227,179,65,0.08), rgba(227,179,65,0.03)); border: 1px solid rgba(227,179,65,0.3); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; animation: event-glow 3s ease-in-out infinite; }
+    @keyframes event-glow { 0%,100% { box-shadow: 0 0 0 rgba(227,179,65,0); } 50% { box-shadow: 0 0 16px rgba(227,179,65,0.15); } }
+    .event-icon { font-size: 1.8rem; line-height: 1; }
+    .event-body { flex: 1; }
+    .event-label { font-family: 'VT323', monospace; font-size: 0.9rem; color: var(--gold); letter-spacing: 3px; opacity: 0.8; }
+    .event-text { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+
+    /* ── DAY SELECTOR ── */
+    .panel-label { font-family: 'VT323', monospace; font-size: 1rem; color: var(--text-dim); letter-spacing: 3px; margin-bottom: 10px; }
+    .day-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .day-btn { background: var(--card); border: 1px solid var(--border); color: var(--text-dim); border-radius: 8px; padding: 10px 4px; cursor: pointer; font-family: 'VT323', monospace; font-size: 1.2rem; letter-spacing: 1px; transition: all 0.18s ease; -webkit-tap-highlight-color: transparent; display: flex; flex-direction: column; align-items: center; gap: 2px; position: relative; overflow: hidden; }
+    .day-btn .day-num { font-size: 1.5rem; color: var(--text); }
+    .day-btn .day-tag { font-size: 0.75rem; color: var(--muted); letter-spacing: 1px; }
+    .day-btn:active { transform: scale(0.95); }
+    .day-btn:hover { border-color: var(--gold-dim); color: var(--text); }
+    .day-btn.active { background: linear-gradient(135deg, rgba(227,179,65,0.15), rgba(227,179,65,0.05)); border-color: var(--gold); color: var(--gold); box-shadow: var(--glow-gold); }
+    .day-btn.active .day-num { color: var(--gold); }
+    .day-btn.active .day-tag { color: var(--gold-dim); }
+    .day-btn .dot-today { position: absolute; top: 5px; right: 7px; width: 5px; height: 5px; background: var(--cyan); border-radius: 50%; display: none; }
+    .day-btn.today .dot-today { display: block; }
+
+    /* ── QUEST LOG ── */
+    .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .log-title { font-family: 'VT323', monospace; font-size: 1.3rem; color: var(--gold); letter-spacing: 2px; }
+    .log-count { font-size: 0.8rem; font-weight: 600; color: var(--text-dim); background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2px 10px; }
+    .quest-card { border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; border: 1px solid var(--border); background: var(--card); transition: all 0.2s ease; position: relative; overflow: hidden; }
+    .quest-card:last-child { margin-bottom: 0; }
+
+    /* Status variants */
+    .quest-card.done { opacity: 0.42; border-color: transparent; }
+    .quest-card.active { border-color: var(--green); background: linear-gradient(135deg, rgba(63,185,80,0.1), rgba(63,185,80,0.03)); box-shadow: var(--glow-green); }
+    .quest-card.duty { border-color: rgba(227,179,65,0.35); background: linear-gradient(135deg, rgba(227,179,65,0.08), transparent); }
+    .quest-card.duty.active { border-color: var(--gold); background: linear-gradient(135deg, rgba(227,179,65,0.15), rgba(227,179,65,0.05)); box-shadow: var(--glow-gold); }
+
+    .quest-card.active::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .quest-card.duty.active::before { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+    .card-subject { font-size: 1.3rem; font-weight: 700; color: var(--text); letter-spacing: 0.5px; line-height: 1.2; }
+    .quest-card.active .card-subject { color: #fff; }
+    .card-badge { font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; border-radius: 4px; padding: 2px 7px; flex-shrink: 0; margin-left: 8px; }
+    
+    .badge-done    { background: rgba(74,85,104,0.4); color: var(--muted); }
+    .badge-active  { background: rgba(63,185,80,0.2); color: var(--green); border: 1px solid rgba(63,185,80,0.4); }
+    .badge-next    { background: rgba(88,166,255,0.15); color: var(--cyan); border: 1px solid rgba(88,166,255,0.3); }
+    .badge-upcoming{ background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    .badge-duty    { background: rgba(227,179,65,0.15); color: var(--amber); border: 1px solid rgba(227,179,65,0.3); }
+    .badge-duty-active { background: rgba(227,179,65,0.2); color: var(--gold); border: 1px solid rgba(227,179,65,0.5); }
+
+    .card-time { font-family: 'VT323', monospace; font-size: 1.05rem; color: var(--text-dim); letter-spacing: 1px; }
+    .quest-card.active .card-time { color: var(--green); }
+    .quest-card.duty.active .card-time { color: var(--gold); }
+
+    .card-note { font-size: 0.82rem; color: var(--cyan); margin-top: 4px; font-weight: 500; opacity: 0.85; }
+
+    .period-progress { margin-top: 9px; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+    .period-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width 60s linear; }
+    .quest-card.duty.active .period-fill { background: var(--gold); }
+
+    .countdown-text { font-family: 'VT323', monospace; font-size: 0.95rem; color: var(--green); margin-top: 5px; letter-spacing: 1px; }
+    .quest-card.duty.active .countdown-text { color: var(--gold); }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 32px 16px; color: var(--text-dim); }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 8px; }
+    .empty-text { font-family: 'VT323', monospace; font-size: 1.3rem; letter-spacing: 2px; }
+
+    /* Footer */
+    .footer { width: 100%; max-width: 420px; text-align: center; margin-top: 8px; font-size: 0.75rem; color: var(--muted); font-weight: 500; letter-spacing: 1px; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .quest-card { animation: fadeUp 0.25s ease both; }
+  </style>
+</head>
+<body>
+
+  <a href="index.html" class="nav-back">← HUB MENU</a>
+
+  <div class="header">
+    <div class="header-eyebrow">⚔ IMPERIAL WORLD SCHOOL</div>
+    <div class="header-title">Teacher Quest</div>
+    <div class="header-sub">Daily Schedule System</div>
+    <div class="live-clock">
+      <div class="live-dot"></div>
+      <span id="clock-display">--:--:--</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="energy-header">
+      <span class="energy-label">⚡ ENERGY</span>
+      <span class="energy-value" id="hp-text">100 / 100</span>
+    </div>
+    <div class="energy-track">
+      <div class="energy-fill" id="hp-bar" style="width:100%"></div>
+    </div>
+    <div class="energy-time" id="energy-status">School day hasn't started</div>
+  </div>
+
+  <div id="world-event-container"></div>
+
+  <div class="panel">
+    <div class="panel-label">— SELECT DAY CYCLE —</div>
+    <div class="day-grid" id="day-grid"></div>
+  </div>
+
+  <div class="panel" id="quest-panel">
+    <div class="log-header">
+      <div class="log-title" id="log-title">QUEST LOG</div>
+      <div class="log-count" id="log-count">— periods</div>
+    </div>
+    <div id="quest-list">
+      <div class="empty-state">
+        <div class="empty-icon">🗺️</div>
+        <div class="empty-text">Select a day cycle above</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Imperial World School · Kathmandu, Nepal</div>
+
+<script>
+  // ═══════════════════════════════════════════
+  // 📚 SCHEDULE DATABASE
+  // ═══════════════════════════════════════════
+  const questDatabase = {
+    1: [
+      { time: "10:25-11:35", subject: "MECHI", type: "class" },
+      { time: "12:15-1:25",  subject: "IPC · MAHAKALI", note: "Week 1 & 2", type: "class" },
+      { time: "1:30-2:40",   subject: "KARNALI", type: "class" }
+    ],
+    2: [
+      { time: "10:25-11:35", subject: "MAHAKALI", type: "class" },
+      { time: "1:30-2:40",   subject: "BARUN", type: "class" },
+      { time: "2:40-3:00",   subject: "SNACKS DUTY", type: "duty" }
+    ],
+    3: [
+      { time: "8:15-9:25",   subject: "MECHI", type: "class" },
+      { time: "10:05-10:25", subject: "LUNCH DUTY", type: "duty" },
+      { time: "12:15-1:25",  subject: "KARNALI", type: "class" }
+    ],
+    4: [
+      { time: "8:15-9:25",   subject: "MAHAKALI", type: "class" },
+      { time: "12:15-1:25",  subject: "BARUN", type: "class" }
+    ],
+    5: [
+      { time: "10:25-11:35", subject: "KARNALI", type: "class" },
+      { time: "12:15-1:25",  subject: "IPC · BARUN", note: "Week 1", type: "class" },
+      { time: "1:30-2:40",   subject: "MECHI", type: "class" }
+    ],
+    6: [
+      { time: "10:25-11:35", subject: "BARUN", type: "class" },
+      { time: "1:30-2:40",   subject: "MAHAKALI", type: "class" }
+    ],
+    7: [
+      { time: "8:15-9:25",   subject: "KARNALI", type: "class" },
+      { time: "10:05-10:25", subject: "LUNCH DUTY", type: "duty" },
+      { time: "10:25-11:35", subject: "IPC · MAHAKALI / BARUN", note: "MAHAKALI Week 1 · BARUN Week 2", type: "class" },
+      { time: "12:15-1:25",  subject: "MECHI", type: "class" }
+    ],
+    8: [
+      { time: "8:15-9:25",   subject: "BARUN", type: "class" },
+      { time: "12:15-1:25",  subject: "MAHAKALI", type: "class" },
+      { time: "2:40-3:00",   subject: "SNACKS DUTY", type: "duty" }
+    ]
+  };
+
+  function parseTime(str) {
+    const [h, m] = str.trim().split(':').map(Number);
+    let hour = h;
+    if (h < 8) hour = h + 12;
+    return hour * 60 + m;
+  }
+
+  function parsePeriod(timeStr) {
+    const [s, e] = timeStr.split('-');
+    return { start: parseTime(s), end: parseTime(e) };
+  }
+
+  function nowMins() {
+    const n = new Date();
+    return n.getHours() * 60 + n.getMinutes();
+  }
+
+  function formatCountdown(remainMins) {
+    if (remainMins <= 0) return "Ending now";
+    const h = Math.floor(remainMins / 60);
+    const m = remainMins % 60;
+    if (h > 0) return `${h}h ${m}m remaining`;
+    return `${m} min remaining`;
+  }
+
+  function getPeriodStatus(period) {
+    const now = nowMins();
+    const { start, end } = parsePeriod(period.time);
+    if (now >= end) return 'done';
+    if (now >= start && now < end) return 'active';
+    return 'upcoming';
+  }
+
+  function getPeriodProgress(period) {
+    const now = nowMins();
+    const { start, end } = parsePeriod(period.time);
+    if (now < start) return 0;
+    if (now >= end) return 100;
+    return Math.round(((now - start) / (end - start)) * 100);
+  }
+
+  function getNextClassIndex(day) {
+    const quests = questDatabase[day];
+    if (!quests) return -1;
+    const now = nowMins();
+    for (let i = 0; i < quests.length; i++) {
+      const { start } = parsePeriod(quests[i].time);
+      if (start > now) return i;
+    }
+    return -1;
+  }
+
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('clock-display').textContent = `${h}:${m}:${s}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  function updateEnergy() {
+    const now = new Date();
+    const startMins = 8 * 60 + 15;
+    const endMins   = 16 * 60 + 15;
+    const current   = now.getHours() * 60 + now.getMinutes();
+    const bar = document.getElementById('hp-bar');
+    const txt = document.getElementById('hp-text');
+    const status = document.getElementById('energy-status');
+
+    let pct = 100;
+    if (current >= endMins) pct = 0;
+    else if (current >= startMins) pct = Math.round(((endMins - current) / (endMins - startMins)) * 100);
+
+    bar.style.width = pct + '%';
+    txt.textContent = pct + ' / 100';
+
+    if (pct > 60) { bar.style.background = 'var(--green)'; bar.style.boxShadow = '0 0 8px rgba(63,185,80,0.4)'; }
+    else if (pct > 25) { bar.style.background = 'var(--amber)'; bar.style.boxShadow = '0 0 8px rgba(210,153,34,0.4)'; }
+    else { bar.style.background = 'var(--red)'; bar.style.boxShadow = '0 0 8px rgba(248,81,73,0.4)'; }
+
+    if (current < startMins) { status.textContent = `School starts at 8:15 · ${startMins - current} min away`; }
+    else if (current >= endMins) { status.textContent = 'School day complete · Rest up, hero 🏆'; }
+    else {
+      const rem = endMins - current;
+      const rh = Math.floor(rem/60), rm = rem % 60;
+      status.textContent = `${rh > 0 ? rh + 'h ' : ''}${rm}m until 4:15 · ${pct}% energy`;
+    }
+  }
+  updateEnergy();
+  setInterval(updateEnergy, 60000);
+
+  function checkWorldEvent() {
+    const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    const today = days[new Date().getDay()];
+    let icon = '', label = '', text = '';
+
+    if (today === "Wednesday") {
+      icon = '🌟'; label = 'SERVER EVENT · ' + today.toUpperCase();
+      text = 'Advisory · 9:25 – 10:05';
+    } else if (today === "Thursday" || today === "Friday") {
+      icon = '✨'; label = 'SERVER EVENT · ' + today.toUpperCase();
+      text = 'Exploratory · 9:25 – 10:05';
+    }
+
+    if (text) {
+      document.getElementById('world-event-container').innerHTML = `
+        <div class="world-event">
+          <div class="event-icon">${icon}</div>
+          <div class="event-body">
+            <div class="event-label">${label}</div>
+            <div class="event-text">${text}</div>
+          </div>
+        </div>`;
+    }
+  }
+  checkWorldEvent();
+
+  let activeDay = null;
+
+  function buildDayGrid() {
+    const grid = document.getElementById('day-grid');
+    grid.innerHTML = '';
+    for (let i = 1; i <= 8; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'day-btn';
+      btn.id = 'day-btn-' + i;
+      btn.innerHTML = `<span class="day-num">D${i}</span><span class="dot-today"></span>`;
+      btn.onclick = () => selectDay(i);
+      grid.appendChild(btn);
+    }
+  }
+  buildDayGrid();
+
+  function selectDay(day) {
+    activeDay = day;
+    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('day-btn-' + day).classList.add('active');
+
+    const quests = questDatabase[day];
+    const list = document.getElementById('quest-list');
+    const title = document.getElementById('log-title');
+    const count = document.getElementById('log-count');
+
+    title.textContent = `ACTIVE QUESTS — DAY ${day}`;
+
+    if (!quests || quests.length === 0) {
+      count.textContent = '0 periods';
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">🏕️</div><div class="empty-text">No quests. Rest, hero.</div></div>`;
+      return;
+    }
+
+    const classCount = quests.filter(q => q.type === 'class').length;
+    count.textContent = `${classCount} class${classCount !== 1 ? 'es' : ''} · ${quests.length} total`;
+
+    const nextIdx = getNextClassIndex(day);
+    let html = '';
+
+    quests.forEach((q, i) => {
+      const status = getPeriodStatus(q);
+      const progress = getPeriodProgress(q);
+      const isDuty = q.type === 'duty';
+      const { end } = parsePeriod(q.time);
+      const remain = end - nowMins();
+
+      let badgeText = '', badgeClass = '';
+      if (status === 'done') { badgeText = 'DONE'; badgeClass = 'badge-done'; }
+      else if (status === 'active') { badgeText = isDuty ? 'ON DUTY' : 'IN CLASS'; badgeClass = isDuty ? 'badge-duty-active' : 'badge-active'; }
+      else {
+        if (i === nextIdx) { badgeText = 'UP NEXT'; badgeClass = 'badge-next'; }
+        else { badgeText = isDuty ? 'DUTY' : 'UPCOMING'; badgeClass = isDuty ? 'badge-duty' : 'badge-upcoming'; }
+      }
+
+      const cardClass = [ 'quest-card', isDuty ? 'duty' : '', status === 'done' ? 'done' : '', status === 'active' ? 'active' : '' ].filter(Boolean).join(' ');
+      const delayMs = i * 60;
+
+      html += `
+        <div class="${cardClass}" style="animation-delay:${delayMs}ms">
+          <div class="card-top">
+            <div class="card-subject">${isDuty ? '🛡 ' : '⚔ '}${q.subject}</div>
+            <span class="card-badge ${badgeClass}">${badgeText}</span>
+          </div>
+          <div class="card-time">⏰ ${q.time.replace('-', ' → ')}</div>
+          ${q.note ? `<div class="card-note">📌 ${q.note}</div>` : ''}
+          ${status === 'active' ? `
+            <div class="period-progress"><div class="period-fill" style="width:${progress}%"></div></div>
+            <div class="countdown-text">⏳ ${formatCountdown(remain)}</div>
+          ` : ''}
+        </div>`;
+    });
+
+    list.innerHTML = html;
+  }
+
+  setInterval(() => {
+    if (activeDay !== null) selectDay(activeDay);
+  }, 60000);
+</script>
+<script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZcgoEqrzhx0KkOP40B0r8oXjKPR2oB5X4aB4GkHryuF2eX09R2A13S9DofB1+2"></script>
+</body>
+</html>

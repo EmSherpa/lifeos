@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>Fitness Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0a0e14; --surface: #111720; --card: #161d2a; --border: #1e2d42;
+      --gold: #e3b341; --cyan: #58a6ff; --green: #3fb950; --red: #f85149;
+      --muted: #4a5568; --text: #cdd9e5; --text-dim: #768390;
+      --glow-red: 0 0 12px rgba(248,81,73,0.35);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Rajdhani', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 16px 12px 32px; }
+
+    /* Nav Back */
+    .nav-back { align-self: flex-start; color: var(--text-dim); text-decoration: none; font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 5px;}
+    .nav-back:hover { color: var(--text); }
+
+    /* HEADER */
+    .header { width: 100%; max-width: 420px; margin-bottom: 16px; text-align: center; }
+    .header-eyebrow { font-family: 'VT323', monospace; font-size: 1rem; color: var(--red); letter-spacing: 4px; margin-bottom: 4px; }
+    .header-title { font-family: 'VT323', monospace; font-size: 2.8rem; color: var(--text); letter-spacing: 3px; line-height: 1; text-shadow: var(--glow-red); }
+    .header-sub { font-size: 0.85rem; color: var(--text-dim); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-top: 4px; }
+
+    /* PANELS */
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; width: 100%; max-width: 420px; margin-bottom: 12px; position: relative; overflow: hidden; }
+    .panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--red), transparent); }
+
+    /* PROGRESS BAR */
+    .energy-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .energy-label { font-family: 'VT323', monospace; font-size: 1.1rem; color: var(--text-dim); letter-spacing: 2px; }
+    .energy-value { font-family: 'VT323', monospace; font-size: 1.4rem; color: var(--red); }
+    .energy-track { width: 100%; height: 10px; background: rgba(0,0,0,0.4); border-radius: 5px; border: 1px solid var(--border); }
+    .energy-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; background: var(--red); }
+    
+    /* WORLD EVENT (TIPS) */
+    .world-event { width: 100%; max-width: 420px; margin-bottom: 12px; background: rgba(248,81,73,0.08); border: 1px solid rgba(248,81,73,0.3); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+    .event-icon { font-size: 1.8rem; }
+    .event-label { font-family: 'VT323', monospace; font-size: 0.9rem; color: var(--red); letter-spacing: 3px; }
+    .event-text { font-size: 0.95rem; font-weight: 600; color: var(--text); line-height: 1.4;}
+
+    /* DAY SELECTOR */
+    .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .day-btn { background: var(--card); border: 1px solid var(--border); color: var(--text-dim); border-radius: 6px; padding: 10px 0; cursor: pointer; font-family: 'VT323', monospace; font-size: 1.1rem; transition: all 0.2s; }
+    .day-btn.active { background: rgba(248,81,73,0.15); border-color: var(--red); color: var(--red); box-shadow: var(--glow-red); }
+
+    /* QUEST LOG */
+    .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .log-title { font-family: 'VT323', monospace; font-size: 1.3rem; color: var(--text); letter-spacing: 2px; }
+    .log-count { font-size: 0.8rem; font-weight: 600; color: var(--text-dim); background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2px 10px; }
+    
+    .quest-card { border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; border: 1px solid var(--border); background: var(--card); transition: all 0.2s ease; cursor: pointer; }
+    .quest-card:hover { border-color: var(--red); }
+    
+    /* DONE STATE */
+    .quest-card.done { opacity: 0.5; border-color: var(--green); background: rgba(63,185,80,0.05); }
+    .quest-card.done .card-subject { text-decoration: line-through; }
+    .quest-card.done .badge-status { background: rgba(63,185,80,0.2); color: var(--green); border-color: rgba(63,185,80,0.4); }
+
+    .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+    .card-subject { font-size: 1.2rem; font-weight: 700; line-height: 1.2; transition: color 0.2s;}
+    .badge-status { font-size: 0.72rem; font-weight: 700; letter-spacing: 1.5px; border-radius: 4px; padding: 2px 7px; background: transparent; color: var(--muted); border: 1px solid var(--border); }
+    
+    .card-reps { font-family: 'VT323', monospace; font-size: 1.1rem; color: var(--red); letter-spacing: 1px; }
+    .card-note { font-size: 0.82rem; color: var(--cyan); margin-top: 4px; font-weight: 500; }
+
+    /* NUTRITION */
+    .nutrition-panel { font-size: 0.85rem; color: var(--text-dim); text-align: center; margin-top: 10px; line-height: 1.5; }
+    .nutrition-panel span { color: var(--gold); font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <a href="index.html" class="nav-back">← HUB</a>
+
+  <div class="header">
+    <div class="header-eyebrow">PHYSICAL UPGRADE</div>
+    <div class="header-title">Fitness Quest</div>
+    <div class="header-sub">Hypertrophy & Recovery Protocol</div>
+  </div>
+
+  <div class="panel">
+    <div class="energy-header">
+      <span class="energy-label">💪 READINESS</span>
+      <span class="energy-value" id="hp-text">0%</span>
+    </div>
+    <div class="energy-track">
+      <div class="energy-fill" id="hp-bar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="world-event-container"></div>
+
+  <div class="panel">
+    <div class="day-grid" id="day-grid">
+      <button class="day-btn" onclick="selectDay('Sunday')" id="btn-Sunday">SUN</button>
+      <button class="day-btn" onclick="selectDay('Monday')" id="btn-Monday">MON</button>
+      <button class="day-btn" onclick="selectDay('Tuesday')" id="btn-Tuesday">TUE</button>
+      <button class="day-btn" onclick="selectDay('Wednesday')" id="btn-Wednesday">WED</button>
+      <button class="day-btn" onclick="selectDay('Thursday')" id="btn-Thursday">THU</button>
+      <button class="day-btn" onclick="selectDay('Friday')" id="btn-Friday">FRI</button>
+      <button class="day-btn" onclick="selectDay('Saturday')" id="btn-Saturday">SAT</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="log-header">
+      <div class="log-title" id="log-title">TODAY'S MISSION</div>
+      <div class="log-count" id="log-count">0 items</div>
+    </div>
+    <div id="quest-list"></div>
+  </div>
+
+  <div class="nutrition-panel">
+    🍗 <span>NUTRITION REALITY CHECK:</span> ~100g Protein/Day<br>
+    Eggs (Best) · Dal + Rice · Soy Chunks · Milk / Curd
+  </div>
+
+<script>
+  // ═══════════════════════════════════════════
+  // 🏋️ WORKOUT DATABASE
+  // ═══════════════════════════════════════════
+  const db = {
+    "Saturday": {
+      focus: "Chest & Shoulders",
+      tip: "Tempo Control: 3-4s down, 1s pause, explode up. Do push-ups to near failure on last set.",
+      quests: [
+        { reps: "4×15–20", name: "Push-ups", note: "Slow 3 sec down" },
+        { reps: "3×8–12", name: "Decline Push-ups", note: "Feet elevated" },
+        { reps: "4×10–12", name: "One-arm DB Floor Press", note: "Each arm" },
+        { reps: "3×8–12", name: "Pike Push-ups", note: "For shoulders" },
+        { reps: "3×12–15", name: "One-arm Lateral Raise", note: "Each arm" },
+        { reps: "3×60 sec", name: "Plank", note: "Core bracing" }
+      ]
+    },
+    "Sunday": {
+      focus: "Legs (Quads + Glutes)",
+      tip: "Your legs will grow if you slow down and go deep.",
+      quests: [
+        { reps: "4×10", name: "Bulgarian Split Squats", note: "Each leg" },
+        { reps: "4×12", name: "Goblet Squats", note: "Slow 3-4 sec down" },
+        { reps: "2×10", name: "Pause Squats", note: "Hold bottom 2 sec" },
+        { reps: "2×60 sec", name: "Wall Sit", note: "To failure if possible" },
+        { reps: "3×20", name: "Single-leg Calf Raises", note: "Full stretch at bottom" }
+      ]
+    },
+    "Monday": {
+      focus: "Active Recovery",
+      tip: "Don't skip active recovery. Blood flow clears lactic acid and aids muscle growth.",
+      quests: [
+        { reps: "30-45m", name: "Brisk Walk", note: "Keep heart rate moderate" },
+        { reps: "15m", name: "Mobility Routine", note: "Hips, shoulders, ankles" }
+      ]
+    },
+    "Tuesday": {
+      focus: "Cardio",
+      tip: "Keep the intensity high but listen to your joints.",
+      quests: [
+        { reps: "60m+", name: "Futsal / HIIT Cardio", note: "Match pace" }
+      ]
+    },
+    "Wednesday": {
+      focus: "Back & Arms",
+      tip: "If no table row is possible, do slow DB rows with a longer 2 sec hold at the top.",
+      quests: [
+        { reps: "4×10–12", name: "One-arm DB Row", note: "Squeeze the lat" },
+        { reps: "3×8–12", name: "Towel Rows", note: "Under table/door" },
+        { reps: "3×10–12", name: "Dumbbell Curl", note: "Controlled negative" },
+        { reps: "2×12", name: "Hammer Curl", note: "Same dumbbell" },
+        { reps: "3×12", name: "Reverse Snow Angels", note: "On floor for upper back" },
+        { reps: "2×30 sec", name: "Side Plank", note: "Each side" }
+      ]
+    },
+    "Thursday": {
+      focus: "Posterior Chain",
+      tip: "Rule: Start at 3x10. Build to 3x15. Then slow tempo or add sets.",
+      quests: [
+        { reps: "4×10–12", name: "Single-leg RDL", note: "Hinge at the hips" },
+        { reps: "3×12", name: "Glute Bridge (1 leg)", note: "Squeeze at top" },
+        { reps: "3×12", name: "Hip Thrust", note: "Use bed/chair" },
+        { reps: "3×12", name: "Reverse Lunges", note: "Keep torso upright" },
+        { reps: "3×20", name: "Calf Raises", note: "Slow burn" }
+      ]
+    },
+    "Friday": {
+      focus: "Full Rest",
+      tip: "Muscle grows while you rest. Prioritize sleep and protein today.",
+      quests: [
+        { reps: "REST", name: "Complete Rest Day", note: "Hydrate and eat well" }
+      ]
+    }
+  };
+
+  // State to track completed exercises
+  let completedState = {};
+  let currentDay = "Saturday";
+
+  function init() {
+    const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    currentDay = days[new Date().getDay()]; // Auto-select today
+    selectDay(currentDay);
+  }
+
+  function selectDay(dayName) {
+    currentDay = dayName;
+    document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('btn-' + dayName).classList.add('active');
+
+    const dayData = db[dayName];
+    document.getElementById('log-title').textContent = dayData.focus.toUpperCase();
+    document.getElementById('log-count').textContent = `${dayData.quests.length} exercises`;
+
+    // Render Tip
+    document.getElementById('world-event-container').innerHTML = `
+      <div class="world-event">
+        <div class="event-icon">⚙️</div>
+        <div>
+          <div class="event-label">PROGRESSION SYSTEM</div>
+          <div class="event-text">${dayData.tip}</div>
+        </div>
+      </div>`;
+
+    renderQuests();
+  }
+
+  function renderQuests() {
+    const quests = db[currentDay].quests;
+    let html = '';
+    let completedCount = 0;
+
+    quests.forEach((q, index) => {
+      const isDone = completedState[`${currentDay}-${index}`] || false;
+      if (isDone) completedCount++;
+
+      html += `
+        <div class="quest-card ${isDone ? 'done' : ''}" onclick="toggleQuest(${index})">
+          <div class="card-top">
+            <div class="card-subject">⚔ ${q.name}</div>
+            <span class="badge-status">${isDone ? 'DONE' : 'PENDING'}</span>
+          </div>
+          <div class="card-reps">🔄 ${q.reps}</div>
+          <div class="card-note">📌 ${q.note}</div>
+        </div>`;
+    });
+
+    document.getElementById('quest-list').innerHTML = html;
+
+    // Update Progress Bar
+    const pct = quests.length === 0 ? 100 : Math.round((completedCount / quests.length) * 100);
+    document.getElementById('hp-bar').style.width = pct + '%';
+    document.getElementById('hp-text').textContent = pct + '%';
+    if(pct === 100) {
+        document.getElementById('hp-bar').style.background = 'var(--green)';
+    } else {
+        document.getElementById('hp-bar').style.background = 'var(--red)';
+    }
+  }
+
+  function toggleQuest(index) {
+    const key = `${currentDay}-${index}`;
+    completedState[key] = !completedState[key];
+    renderQuests();
+  }
+
+  init();
+</script>
+<script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZcgoEqrzhx0KkOP40B0r8oXjKPR2oB5X4aB4GkHryuF2eX09R2A13S9DofB1+2"></script>
+
+</body>
+</html>

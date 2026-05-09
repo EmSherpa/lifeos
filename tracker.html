@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mingma · AI Engineer Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+
+<style>
+/* ── RESET & VARS ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #06060a;
+  --surface:   rgba(255,255,255,0.035);
+  --border:    rgba(255,255,255,0.07);
+  --border-hi: rgba(212,168,83,0.4);
+  --gold:      #d4a853;
+  --gold-hi:   #f0c060;
+  --gold-dim:  rgba(212,168,83,0.15);
+  --text:      #e8e6e1;
+  --muted:     #768390;
+  --dim:       #2a2830;
+  --mono:      'Rajdhani', sans-serif;
+  --display:   'VT323', monospace;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  min-height: 100vh;
+  font-family: var(--mono);
+  color: var(--text);
+  overflow-x: hidden;
+  cursor: default;
+  font-size: 1.1rem;
+}
+
+/* ── SCROLLBAR ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 99px; }
+
+/* ── ANIMATED BACKGROUND ──────────────────────────────────────────── */
+#bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.18; animation: drift 20s ease-in-out infinite alternate; }
+.orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, #c8943a, transparent 70%); top: -200px; left: -150px; animation-duration: 22s; }
+.orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, #1a1060, transparent 70%); bottom: -100px; right: -100px; animation-duration: 28s; animation-delay: -8s; }
+.orb-3 { width: 350px; height: 350px; background: radial-gradient(circle, #0d2a3a, transparent 70%); top: 40%; left: 55%; animation-duration: 18s; animation-delay: -4s; }
+
+#grain { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.55; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E"); background-size: 180px; mix-blend-mode: overlay; }
+#grid { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-image: linear-gradient(rgba(212,168,83,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(212,168,83,0.025) 1px, transparent 1px); background-size: 48px 48px; }
+
+@keyframes drift { 0% { transform: translate(0,0) scale(1); } 33% { transform: translate(40px,-30px) scale(1.08); } 66% { transform: translate(-20px,50px) scale(0.95); } 100% { transform: translate(30px,20px) scale(1.05); } }
+
+/* ── LAYOUT ─────────────────────────────────────────────────────────── */
+#app { position: relative; z-index: 2; max-width: 860px; margin: 0 auto; padding: 20px 20px 120px; }
+
+/* ── NAV BACK ───────────────────────────────────────────────────────── */
+.nav-back { color: var(--muted); text-decoration: none; font-size: 1rem; font-weight: 700; margin-bottom: 5px; display: inline-block; font-family: var(--mono); text-transform: uppercase; letter-spacing: 1px; transition: color 0.2s;}
+.nav-back:hover { color: var(--gold); }
+
+/* ── GLASS MIXIN ─────────────────────────────────────────────────────── */
+.glass { background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 16px; }
+
+/* ── HEADER ─────────────────────────────────────────────────────────── */
+.header { padding: 16px 0 28px; border-bottom: 1px solid var(--border); }
+.header-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.wordmark { font-family: var(--display); font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 400; color: var(--gold); letter-spacing: 1px; line-height: 1; text-shadow: 0 0 40px rgba(212,168,83,0.5), 0 0 80px rgba(212,168,83,0.2); }
+.wordmark-sub { font-size: 0.8rem; font-weight: 600; color: var(--muted); letter-spacing: 3px; margin-top: 7px; text-transform: uppercase; }
+.level-plate { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.level-icon-name { display: flex; align-items: center; gap: 8px; }
+.level-icon { font-size: 1.5rem; }
+.level-name { font-family: var(--display); font-size: 1.4rem; color: var(--text); font-weight: 400; letter-spacing: 1px;}
+.level-xp { font-size: 0.9rem; color: var(--gold); font-weight: 700; letter-spacing: 1px; }
+
+/* XP Bar */
+.xp-section { margin-top: 20px; }
+.xp-bar-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 7px; }
+.xp-track { height: 10px; background: rgba(255,255,255,0.04); border-radius: 99px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); position: relative; }
+.xp-fill { height: 100%; background: linear-gradient(90deg, #a06820, #d4a853, #f0c060, #ffe49a); border-radius: 99px; transition: width 0.9s cubic-bezier(0.34,1.56,0.64,1); position: relative; }
+.xp-fill::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 20px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4)); border-radius: 0 99px 99px 0; animation: sheen 2s ease-in-out infinite; }
+@keyframes sheen { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+/* Stats */
+.stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-top: 20px; }
+.stat-tile { padding: 16px 12px 14px; border-radius: 14px; text-align: center; position: relative; overflow: hidden; transition: border-color 0.3s, transform 0.2s; }
+.stat-tile:hover { transform: translateY(-2px); border-color: var(--border-hi) !important; }
+.stat-tile::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: 0; transition: opacity 0.3s; }
+.stat-tile:hover::before { opacity: 1; }
+.stat-num { font-family: var(--display); font-size: 2.2rem; font-weight: 400; color: var(--gold); text-shadow: 0 0 20px rgba(212,168,83,0.4); line-height: 1; }
+.stat-lbl { font-size: 0.75rem; font-weight: 600; color: var(--muted); letter-spacing: 2px; margin-top: 5px; text-transform: uppercase; }
+
+/* ── NAV ──────────────────────────────────────────────────────────────── */
+.nav { display: flex; gap: 6px; padding: 6px; margin-top: 22px; border-radius: 14px; }
+.nav-btn { flex: 1; padding: 11px 10px; border-radius: 10px; border: none; font-family: var(--display); font-size: 1.2rem; font-weight: 400; letter-spacing: 1.5px; cursor: pointer; transition: all 0.25s; text-transform: uppercase; }
+.nav-btn.active { background: var(--gold); color: #0a0808; box-shadow: 0 4px 20px rgba(212,168,83,0.35), 0 0 0 1px rgba(240,192,96,0.3); }
+.nav-btn:not(.active) { background: transparent; color: var(--muted); }
+.nav-btn:not(.active):hover { color: var(--gold-hi); background: var(--gold-dim); }
+
+/* ── SECTION LABEL ─────────────────────────────────────────────────── */
+.sec-label { font-family: var(--display); font-size: 1.2rem; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin: 28px 0 14px; display: flex; align-items: center; gap: 10px; }
+.sec-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+
+/* ── PHASE TABS ──────────────────────────────────────────────────────── */
+.phase-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.phase-tabs::-webkit-scrollbar { display: none; }
+.phase-tab { flex-shrink: 0; padding: 9px 16px; border-radius: 99px; border: 1px solid; font-family: var(--display); font-size: 1.1rem; font-weight: 400; cursor: pointer; transition: all 0.2s; letter-spacing: 1px; white-space: nowrap; }
+
+/* ── PHASE PANEL ─────────────────────────────────────────────────────── */
+.phase-panel { padding: 20px 22px 18px; margin-top: 16px; border-radius: 18px; }
+.phase-panel-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.phase-panel-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 6px; }
+.phase-panel-title { font-family: var(--display); font-size: 1.6rem; font-weight: 400; line-height: 1.1; }
+.phase-count { font-family: var(--display); font-size: 2.8rem; font-weight: 400; line-height: 1; }
+.phase-count-sub { font-size: 0.75rem; font-weight: 600; color: var(--muted); letter-spacing: 1.5px; text-align: right; margin-top: 4px; }
+.phase-bar { height: 3px; border-radius: 99px; background: rgba(255,255,255,0.06); margin-top: 16px; overflow: hidden; }
+.phase-bar-fill { height: 100%; border-radius: 99px; transition: width 0.7s cubic-bezier(0.34,1.56,0.64,1); }
+
+/* ── WEEK CARDS ──────────────────────────────────────────────────────── */
+.weeks { display: flex; flex-direction: column; gap: 7px; margin-top: 16px; }
+.week-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 13px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+.week-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 99px; opacity: 0; transition: opacity 0.3s; }
+.week-row.done::before { opacity: 1; }
+.week-row:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); transform: translateX(4px); }
+.week-row.done { background: rgba(212,168,83,0.06); }
+.wk-check { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-size: 1rem; font-weight: 700; transition: all 0.2s; font-family: var(--display); padding-top: 2px;}
+.wk-check:hover { transform: scale(1.15); }
+.wk-meta { flex: 1; min-width: 0; }
+.wk-num { font-size: 0.75rem; font-weight: 600; color: var(--muted); letter-spacing: 2px; margin-bottom: 4px; text-transform: uppercase; }
+.wk-title { font-size: 1rem; font-weight: 500; line-height: 1.35; }
+.wk-xp { font-family: var(--display); font-size: 1.1rem; flex-shrink: 0; }
+
+/* ── MILESTONE CARD ──────────────────────────────────────────────────── */
+.milestone { margin-top: 18px; border-radius: 20px; border: 1px solid; padding: 22px 22px; position: relative; overflow: hidden; transition: all 0.3s; }
+.milestone:hover { transform: translateY(-2px); }
+.milestone-shimmer { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(105deg, transparent 40%, rgba(212,168,83,0.06) 50%, transparent 60%); background-size: 300% 100%; animation: shimmer 3.5s ease-in-out infinite; }
+@keyframes shimmer { 0% { background-position: 200% center; } 100% { background-position: -200% center; } }
+.milestone-inner { display: flex; gap: 18px; align-items: flex-start; position: relative; z-index: 1; }
+.ms-badge { font-size: 2.8rem; line-height: 1; flex-shrink: 0; }
+.ms-tag { font-size: 0.75rem; font-weight: 600; color: var(--gold); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 7px; }
+.ms-title { font-family: var(--display); font-size: 1.6rem; font-weight: 400; margin-bottom: 7px; line-height: 1.2; }
+.ms-desc { font-size: 0.95rem; font-weight: 500; color: var(--muted); line-height: 1.5; }
+.ms-check-btn { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid; background: transparent; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 400; cursor: pointer; flex-shrink: 0; transition: all 0.2s; font-family: var(--display); padding-top: 4px;}
+.ms-check-btn:hover { transform: scale(1.12); }
+
+/* ── STATS VIEW ──────────────────────────────────────────────────────── */
+.phase-stat-card { padding: 18px 20px; border-radius: 16px; border: 1px solid; margin-bottom: 10px; transition: all 0.2s; }
+.phase-stat-card:hover { transform: translateX(3px); }
+.psc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 13px; }
+.psc-name { font-family: var(--display); font-size: 1.3rem; font-weight: 400; letter-spacing: 1px;}
+.psc-weeks { font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-top: 4px; }
+.psc-xp { font-family: var(--display); font-size: 1.2rem; text-align: right; }
+.psc-xp-sub { font-size: 0.75rem; font-weight: 600; color: var(--muted); margin-top: 3px; text-align: right;}
+.psc-bar { height: 4px; background: rgba(255,255,255,0.05); border-radius: 99px; overflow: hidden; }
+.psc-fill { height: 100%; border-radius: 99px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
+
+/* Level ladder */
+.lvl-row { display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-radius: 12px; border: 1px solid; margin-bottom: 7px; transition: all 0.2s; }
+.lvl-emoji { font-size: 1.4rem; }
+.lvl-name { font-family: var(--display); font-size: 1.2rem; font-weight: 400; letter-spacing: 1px;}
+.lvl-range { font-size: 0.8rem; font-weight: 600; color: var(--muted); margin-top: 3px; }
+.lvl-you { margin-left: auto; font-size: 0.8rem; font-weight: 700; color: var(--gold); letter-spacing: 1px; }
+.lvl-done { margin-left: auto; color: #4ade80; font-family: var(--display); font-size: 1.4rem; }
+
+/* Badge grid */
+.badge-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 10px; }
+.badge-cell { border-radius: 16px; border: 1px solid; padding: 16px 8px; text-align: center; transition: all 0.25s; }
+.badge-cell:hover { transform: scale(1.05); }
+.badge-glyph { font-size: 2.2rem; }
+.badge-lbl { font-size: 0.75rem; font-weight: 600; margin-top: 7px; line-height: 1.2; letter-spacing: 0.3px; }
+
+/* ── LOG VIEW ──────────────────────────────────────────────────────── */
+.log-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+.log-field { flex: 1; padding: 13px 16px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-family: var(--mono); font-size: 1rem; outline: none; transition: border-color 0.2s; }
+.log-field::placeholder { color: var(--muted); }
+.log-field:focus { border-color: var(--border-hi); background: rgba(212,168,83,0.04); }
+.log-go { padding: 13px 18px; background: var(--gold); border: none; border-radius: 12px; color: #0a0808; font-family: var(--display); font-size: 1.2rem; cursor: pointer; transition: all 0.2s; letter-spacing: 1px; }
+.log-go:hover { background: var(--gold-hi); box-shadow: 0 4px 20px rgba(212,168,83,0.35); }
+.log-entry { display: flex; gap: 14px; align-items: flex-start; padding: 13px 16px; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); margin-bottom: 7px; animation: slideIn 0.25s ease; }
+@keyframes slideIn { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: translateY(0); } }
+.log-dt { font-family: var(--display); font-size: 1.1rem; color: var(--gold); flex-shrink: 0; margin-top: 2px; letter-spacing: 0.5px; }
+.log-txt { font-size: 1.05rem; font-weight: 500; line-height: 1.45; color: #9ca3b4; }
+.log-nil { text-align: center; padding: 60px 20px; font-size: 1rem; font-weight: 600; color: var(--muted); line-height: 1.8; }
+
+/* ── OVERLAYS ─────────────────────────────────────────────────────── */
+.xp-toast { position: fixed; top: 24px; right: 24px; z-index: 9999; padding: 12px 22px; border-radius: 12px; background: rgba(18,14,8,0.95); border: 1px solid rgba(212,168,83,0.5); backdrop-filter: blur(20px); display: flex; align-items: center; gap: 10px; animation: toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards, toastOut 0.3s ease 1.8s forwards; box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,168,83,0.1); }
+.xp-toast-val { font-family: var(--display); font-size: 1.8rem; color: var(--gold); text-shadow: 0 0 20px rgba(212,168,83,0.6); }
+.xp-toast-lbl { font-size: 0.85rem; font-weight: 600; color: var(--muted); letter-spacing: 1px; }
+@keyframes toastIn { from { opacity:0; transform:translateX(60px) scale(0.9); } to { opacity:1; transform:translateX(0) scale(1); } }
+@keyframes toastOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(30px); } }
+
+.unlock-overlay { position: fixed; inset:0; z-index: 9998; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(6,6,10,0.88); backdrop-filter: blur(12px); animation: overlayIn 0.5s ease forwards, overlayOut 0.4s ease 2.6s forwards; pointer-events: none; }
+.unlock-ring { width: 160px; height: 160px; border-radius: 50%; border: 2px solid rgba(212,168,83,0.4); display: flex; align-items: center; justify-content: center; font-size: 5rem; box-shadow: 0 0 0 20px rgba(212,168,83,0.04), 0 0 60px rgba(212,168,83,0.2); animation: ringPop 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.1s both; }
+.unlock-text { font-family: var(--display); font-weight: 400; font-size: 2rem; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-top: 20px; text-shadow: 0 0 30px rgba(212,168,83,0.6); animation: fadeUp 0.5s ease 0.4s both; }
+.unlock-sub { font-size: 1rem; font-weight: 600; color: var(--muted); letter-spacing: 2px; margin-top: 8px; animation: fadeUp 0.5s ease 0.55s both; }
+@keyframes overlayIn  { from{opacity:0} to{opacity:1} }
+@keyframes overlayOut { from{opacity:1} to{opacity:0} }
+@keyframes ringPop { from { transform:scale(0) rotate(-20deg); opacity:0; } to { transform:scale(1) rotate(0); opacity:1; } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── RESET BTN ───────────────────────────────────────────────────── */
+.danger-btn { display: block; margin: 32px auto 0; padding: 10px 24px; background: transparent; border: 1px solid rgba(239,68,68,0.3); color: #ef4444; border-radius: 10px; font-family: var(--display); font-size: 1.1rem; letter-spacing: 1.5px; cursor: pointer; transition: all 0.2s; }
+.danger-btn:hover { background: rgba(239,68,68,0.08); border-color: #ef4444; }
+
+/* ── ANIMS ───────────────────────────────────────────────────────── */
+#view { animation: fadeUp 0.3s ease both; }
+@media(max-width: 500px) { .badge-grid { grid-template-columns: repeat(5,1fr); gap: 7px; } .wordmark { font-size: 2rem; } .phase-panel-title { font-size: 1.3rem; } }
+
+
+</style>
+</head>
+<body>
+
+<div id="bg-canvas">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+<div id="grain"></div>
+<div id="grid"></div>
+
+<div id="app"></div>
+
+<script>
+const PHASES = [
+  { id:1, title:"Python Power-Up", short:"PY", emoji:"⬡", color:"#60a5fa", dim:"rgba(96,165,250,0.12)", weeks:[ {id:"1-1",week:1,title:"Functions, modules, pip, virtual environments",xp:50}, {id:"1-2",week:2,title:"requests library — calling web APIs",xp:50}, {id:"1-3",week:3,title:"JSON — parsing, extracting, writing data",xp:50}, {id:"1-4",week:4,title:"Error handling + putting it all together",xp:50} ], milestone:{id:"m1",title:"Weather Data Fetcher",desc:"Fetch live Kathmandu weather from a free API and save the response to a structured .json file.",xp:200,badge:"🌦️"} },
+  { id:2, title:"Backend Foundations", short:"BE", emoji:"⬡", color:"#fbbf24", dim:"rgba(251,191,36,0.12)", weeks:[ {id:"2-1",week:5,title:"HTTP, routes, GET vs POST",xp:50}, {id:"2-2",week:6,title:"FastAPI basics — first route, local server",xp:50}, {id:"2-3",week:7,title:"Accepting input — query params, request body",xp:50}, {id:"2-4",week:8,title:"Returning structured responses",xp:50}, {id:"2-5",week:9,title:"Connecting your API to HTML frontend",xp:50} ], milestone:{id:"m2",title:"Quiz Question API",desc:"FastAPI server with 3 endpoints: add a question, get all questions, delete a question.",xp:200,badge:"⚡"} },
+  { id:3, title:"AI Integration", short:"AI", emoji:"⬡", color:"#f87171", dim:"rgba(248,113,113,0.12)", weeks:[ {id:"3-1",week:10,title:"How LLM APIs work",xp:50}, {id:"3-2",week:11,title:"Gemini API (free) — first AI call",xp:50}, {id:"3-3",week:12,title:"Prompt engineering for education",xp:50}, {id:"3-4",week:13,title:"Building AI chains",xp:50}, {id:"3-5",week:14,title:"Streaming responses + long outputs",xp:50} ], milestone:{id:"m3",title:"AI Question Generator",desc:"Give it a topic + grade level → returns 5 MCQs with correct answers in JSON.",xp:200,badge:"🤖"} },
+  { id:4, title:"Automation Layer", short:"AU", emoji:"⬡", color:"#4ade80", dim:"rgba(74,222,128,0.12)", weeks:[ {id:"4-1",week:15,title:"Webhooks — build a receiver in FastAPI",xp:50}, {id:"4-2",week:16,title:"Make.com — trigger script from Google Form",xp:50}, {id:"4-3",week:17,title:"n8n — build a multi-step AI workflow",xp:50}, {id:"4-4",week:18,title:"Google Apps Script → call FastAPI backend",xp:50} ], milestone:{id:"m4",title:"Teacher Pipeline",desc:"Google Form → Make.com → AI Question Generator → auto-saved to Google Sheet.",xp:200,badge:"🔁"} },
+  { id:5, title:"EdTech AI Builder", short:"🚀", emoji:"⬡", color:"#c084fc", dim:"rgba(192,132,252,0.12)", weeks:[ {id:"5-1",week:19,title:"Project planning — scoping a real tool for IWS",xp:50}, {id:"5-2",week:20,title:"Build core feature + connect AI",xp:50}, {id:"5-3",week:21,title:"Connect automation layer + test end-to-end",xp:50}, {id:"5-4",week:22,title:"Deploy on Railway or Render — it's live",xp:50} ], milestone:{id:"m5",title:"Deployed EdTech Tool",desc:"A live, working tool that IWS teachers or students can actually use. Ship it.",xp:500,badge:"🚀"} }
+];
+
+const LEVELS = [
+  {min:0,   max:99,   title:"Script Rookie",      icon:"🌱"}, {min:100, max:299,  title:"API Explorer",        icon:"🔍"},
+  {min:300, max:599,  title:"Backend Builder",     icon:"🔧"}, {min:600, max:999,  title:"AI Integrator",       icon:"🤖"},
+  {min:1000,max:1499, title:"Automation Ninja",    icon:"⚡"}, {min:1500,max:9999, title:"Applied AI Engineer", icon:"🏆"}
+];
+
+const SK = "mingma-tracker-v3";
+
+function initState() { const s = { weeks:{}, milestones:{}, logs:[] }; PHASES.forEach(p => { p.weeks.forEach(w => s.weeks[w.id] = false); s.milestones[p.milestone.id] = false; }); return s; }
+let S = (() => { try { const r = localStorage.getItem(SK); return r ? JSON.parse(r) : initState(); } catch(e) { return initState(); } })();
+let phase = 1, view = "tracker";
+function save() { try { localStorage.setItem(SK, JSON.stringify(S)); } catch(e) {} }
+
+function xp() { let x=0; PHASES.forEach(p=>{ p.weeks.forEach(w=>{ if(S.weeks[w.id]) x+=w.xp; }); if(S.milestones[p.milestone.id]) x+=p.milestone.xp; }); return x; }
+function getLevel(x) { return LEVELS.find(l=>x>=l.min&&x<=l.max)||LEVELS[LEVELS.length-1]; }
+function lvlPct(x) { const l=getLevel(x); return Math.min(((x-l.min)/(l.max===9999?x+100:l.max-l.min))*100,100); }
+function doneWeeks() { return Object.values(S.weeks).filter(Boolean).length; }
+function doneMilestones() { return Object.values(S.milestones).filter(Boolean).length; }
+
+function toast(amount, label="COMPLETE") { document.querySelectorAll('.xp-toast').forEach(e=>e.remove()); const el = document.createElement('div'); el.className = 'xp-toast'; el.innerHTML = `<div class="xp-toast-val">+${amount} XP</div><div class="xp-toast-lbl">${label}</div>`; document.body.appendChild(el); setTimeout(() => el.remove(), 2200); }
+function unlockOverlay(badge, title) { const el = document.createElement('div'); el.className = 'unlock-overlay'; el.innerHTML = `<div class="unlock-ring">${badge}</div><div class="unlock-text">Milestone Unlocked</div><div class="unlock-sub">${title}</div>`; document.body.appendChild(el); setTimeout(() => el.remove(), 3200); }
+
+function render() {
+  const X = xp(), L = getLevel(X), P = lvlPct(X);
+  const dw = doneWeeks(), dm = doneMilestones();
+
+  document.getElementById('app').innerHTML = `
+    <a href="index.html" class="nav-back">← HUB MENU</a>
+    <div class="header">
+      <div class="header-row">
+        <div>
+          <div class="wordmark">APPLIED AI ENGINEER</div>
+          <div class="wordmark-sub">Mingma's Learning OS &nbsp;·&nbsp; 22-Week Quest</div>
+        </div>
+        <div class="level-plate">
+          <div class="level-icon-name">
+            <span class="level-icon">${L.icon}</span>
+            <span class="level-name">${L.title}</span>
+          </div>
+          <div class="level-xp">${X.toLocaleString()} XP</div>
+        </div>
+      </div>
+
+      <div class="xp-section">
+        <div class="xp-bar-meta">
+          <span>Level Progress</span><span>${Math.round(P)}%</span>
+        </div>
+        <div class="xp-track">
+          <div class="xp-fill" style="width:${P}%"></div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-tile glass" style="border-color:rgba(212,168,83,0.12)">
+          <div class="stat-num">${dw}<span style="font-size:1.5rem;color:var(--muted)">/22</span></div>
+          <div class="stat-lbl">Weeks Done</div>
+        </div>
+        <div class="stat-tile glass" style="border-color:rgba(212,168,83,0.12)">
+          <div class="stat-num">${Math.round((dw/22)*100)}<span style="font-size:1.5rem;color:var(--muted)">%</span></div>
+          <div class="stat-lbl">Complete</div>
+        </div>
+        <div class="stat-tile glass" style="border-color:rgba(212,168,83,0.12)">
+          <div class="stat-num">${dm}<span style="font-size:1.5rem;color:var(--muted)">/5</span></div>
+          <div class="stat-lbl">Milestones</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav glass">
+      <button class="nav-btn ${view==='tracker'?'active':''}" onclick="switchView('tracker')">⚔ Tracker</button>
+      <button class="nav-btn ${view==='stats'?'active':''}" onclick="switchView('stats')">◈ Stats</button>
+      <button class="nav-btn ${view==='log'?'active':''}" onclick="switchView('log')">✎ Log</button>
+    </div>
+
+    <div id="view">${view==='tracker'?renderTracker():view==='stats'?renderStats():renderLog()}</div>
+  `;
+}
+
+function renderTracker() {
+  const p = PHASES.find(x=>x.id===phase);
+  const pd = p.weeks.filter(w=>S.weeks[w.id]).length;
+  const md = S.milestones[p.milestone.id];
+  const pct = pd/p.weeks.length*100;
+
+  const tabs = PHASES.map(q=>{
+    const d = q.weeks.filter(w=>S.weeks[w.id]).length;
+    const a = q.id===phase;
+    return `<button class="phase-tab" onclick="switchPhase(${q.id})"
+      style="border-color:${a?q.color+'66':'rgba(255,255,255,0.07)'}; background:${a?q.color+'18':'rgba(255,255,255,0.02)'}; color:${a?q.color:'var(--muted)'}; ${a?`box-shadow:0 0 14px ${q.color}22`:''}">
+      ${a?'◉':'◎'} P${q.id} &nbsp; ${d}/${q.weeks.length}
+    </button>`;
+  }).join('');
+
+  const wks = p.weeks.map(w=>{
+    const done = S.weeks[w.id];
+    return `<div class="week-row ${done?'done':''}" style="${done?`border-color:${p.color}33;background:${p.dim}`:''}">
+      <div class="week-row-accent" style="position:absolute;left:0;top:0;bottom:0;width:3px;background:${p.color};opacity:${done?1:0};border-radius:99px"></div>
+      <button class="wk-check" style="border-color:${done?p.color:'rgba(255,255,255,0.12)'}; background:${done?p.color:'transparent'}; color:${done?'#0a0808':'rgba(255,255,255,0.2)'}" onclick="toggleWeek('${w.id}',${w.xp})">✓</button>
+      <div class="wk-meta">
+        <div class="wk-num">Week ${w.week}</div>
+        <div class="wk-title" style="color:${done?'var(--text)':'var(--muted)'}">${w.title}</div>
+      </div>
+      <div class="wk-xp" style="color:${done?p.color:'var(--dim)'}">+${w.xp}</div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="sec-label">Select Phase</div>
+    <div class="phase-tabs">${tabs}</div>
+    <div class="phase-panel glass" style="border-color:${p.color}33;margin-top:16px">
+      <div class="phase-panel-top">
+        <div>
+          <div class="phase-panel-label">Phase ${p.id}</div>
+          <div class="phase-panel-title" style="color:${p.color}">${p.title}</div>
+        </div>
+        <div>
+          <div class="phase-count" style="color:${p.color}">${pd}<span style="color:var(--muted);font-size:1.8rem">/${p.weeks.length}</span></div>
+          <div class="phase-count-sub">weeks done</div>
+        </div>
+      </div>
+      <div class="phase-bar"><div class="phase-bar-fill" style="width:${pct}%;background:${p.color};box-shadow:0 0 8px ${p.color}66"></div></div>
+    </div>
+    <div class="weeks">${wks}</div>
+    <div class="milestone" style="border-color:${md?p.color+'55':'rgba(212,168,83,0.2)'};background:${md?p.dim:'rgba(255,255,255,0.015)'}">
+      ${!md?'<div class="milestone-shimmer"></div>':''}
+      <div class="milestone-inner">
+        <div class="ms-badge" style="filter:${md?'none':'grayscale(30%) opacity(0.7)'}">${p.milestone.badge}</div>
+        <div style="flex:1;min-width:0">
+          <div class="ms-tag">🏁 Phase Milestone &nbsp;·&nbsp; +${p.milestone.xp} XP</div>
+          <div class="ms-title" style="color:${md?'var(--text)':'var(--muted)'}">${p.milestone.title}</div>
+          <div class="ms-desc">${p.milestone.desc}</div>
+        </div>
+        <button class="ms-check-btn" style="border-color:${md?p.color:'rgba(212,168,83,0.3)'}; background:${md?p.color:'transparent'}; color:${md?'#0a0808':'rgba(212,168,83,0.5)'}" onclick="toggleMilestone('${p.milestone.id}',${p.milestone.xp},'${p.milestone.badge}','${p.milestone.title}')">
+          ${md?'✓':'○'}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderStats() {
+  const X = xp(), L = getLevel(X);
+  const cards = PHASES.map(p=>{
+    const d = p.weeks.filter(w=>S.weeks[w.id]).length;
+    const md = S.milestones[p.milestone.id];
+    const px = d*50+(md?p.milestone.xp:0), mx = p.weeks.length*50+p.milestone.xp, pct = Math.round(d/p.weeks.length*100);
+    return `<div class="phase-stat-card" style="border-color:${p.color}2a;background:${p.dim}55">
+      <div class="psc-top">
+        <div>
+          <div class="psc-name" style="color:${p.color}">P${p.id} — ${p.title}${md?' '+p.milestone.badge:''}</div>
+          <div class="psc-weeks">${d}/${p.weeks.length} weeks${md?' · milestone earned':''}</div>
+        </div>
+        <div>
+          <div class="psc-xp" style="color:${p.color}">${px} <span style="color:var(--muted)">/ ${mx}</span></div>
+          <div class="psc-xp-sub">${pct}% done</div>
+        </div>
+      </div>
+      <div class="psc-bar"><div class="psc-fill" style="width:${pct}%;background:${p.color};box-shadow:0 0 6px ${p.color}55"></div></div>
+    </div>`;
+  }).join('');
+
+  const ladder = LEVELS.map(l=>{
+    const past = X>l.max, cur = X>=l.min&&X<=l.max;
+    return `<div class="lvl-row" style="background:${cur?'rgba(212,168,83,0.08)':'rgba(255,255,255,0.02)'}; border-color:${cur?'rgba(212,168,83,0.4)':'rgba(255,255,255,0.06)'}; opacity:${past||cur?1:0.3}">
+      <div class="lvl-emoji">${l.icon}</div>
+      <div>
+        <div class="lvl-name" style="color:${cur?'var(--gold)':'var(--text)'}">${l.title}</div>
+        <div class="lvl-range">${l.min.toLocaleString()} – ${l.max===9999?'∞':l.max.toLocaleString()} XP</div>
+      </div>
+      ${cur?'<div class="lvl-you">← YOU</div>':''}
+      ${past?'<div class="lvl-done">✓</div>':''}
+    </div>`;
+  }).join('');
+
+  const badges = PHASES.map(p=>{
+    const e = S.milestones[p.milestone.id];
+    return `<div class="badge-cell" style="border-color:${e?p.color+'44':'rgba(255,255,255,0.05)'};background:${e?p.dim:'rgba(255,255,255,0.015)'}">
+      <div class="badge-glyph" style="filter:${e?'none':'grayscale(100%) opacity(0.2)'}">${p.milestone.badge}</div>
+      <div class="badge-lbl" style="color:${e?p.color:'var(--dim)'}">${p.milestone.title.split(' ').slice(0,2).join(' ')}</div>
+    </div>`;
+  }).join('');
+
+  return `
+    <div class="sec-label">Phase Breakdown</div>${cards}
+    <div class="sec-label">Level Ladder</div>${ladder}
+    <div class="sec-label">Milestone Badges</div><div class="badge-grid">${badges}</div>
+    <button class="danger-btn" onclick="resetAll()">⚠ &nbsp;Reset All Progress</button>
+  `;
+}
+
+function renderLog() {
+  const entries = (S.logs||[]).map(e=>`<div class="log-entry"><div class="log-dt">${e.date}</div><div class="log-txt">${e.text}</div></div>`).join('');
+  return `
+    <div class="sec-label">Learning Log</div>
+    <div class="log-bar">
+      <input class="log-field" id="logIn" placeholder="What did you build or learn today?" onkeydown="if(event.key==='Enter')addLog()"/>
+      <button class="log-go" onclick="addLog()">LOG IT</button>
+    </div>
+    ${entries||'<div class="log-nil">No entries yet.<br>Log your first win above ↑</div>'}
+  `;
+}
+
+function switchView(v) { view=v; render(); }
+function switchPhase(id) { phase=id; render(); }
+function toggleWeek(id, xpAmt) { S.weeks[id] = !S.weeks[id]; save(); if(S.weeks[id]) toast(xpAmt, "WEEK COMPLETE"); render(); }
+function toggleMilestone(id, xpAmt, badge, title) { S.milestones[id] = !S.milestones[id]; save(); if(S.milestones[id]) { toast(xpAmt, "MILESTONE"); setTimeout(()=>unlockOverlay(badge, title), 300); } render(); }
+function addLog() { const el = document.getElementById('logIn'); if(!el||!el.value.trim()) return; S.logs = [{text:el.value.trim(), date:new Date().toLocaleDateString('en-GB'), id:Date.now()}, ...(S.logs||[])].slice(0,60); save(); render(); }
+function resetAll() { if(confirm('Reset ALL progress? This cannot be undone.')) { S = initState(); save(); render(); } }
+
+render();
+</script>
+<script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZcgoEqrzhx0KkOP40B0r8oXjKPR2oB5X4aB4GkHryuF2eX09R2A13S9DofB1+2"></script>
+
+</body>
+</html>

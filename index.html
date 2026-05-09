@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Mingma OS | Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #06060a; --surface: rgba(255,255,255,0.035); --border: rgba(255,255,255,0.1);
+      --gold: #d4a853; --cyan: #58a6ff; --red: #f85149; --text: #e8e6e1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    .hub-title { font-family: 'VT323', monospace; font-size: 3rem; color: var(--gold); margin-bottom: 5px; text-shadow: 0 0 15px rgba(212,168,83,0.4); }
+    .hub-sub { color: #768390; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 40px; font-size: 0.8rem; }
+    
+    .grid { display: grid; gap: 20px; width: 100%; max-width: 400px; }
+    .app-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px; text-decoration: none; color: var(--text); display: flex; flex-direction: column;
+      transition: all 0.2s ease; position: relative; overflow: hidden;
+    }
+    .app-card:hover { transform: translateY(-3px); background: rgba(255,255,255,0.06); }
+    .app-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+    
+    .card-school::before { background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+    .card-school:hover { border-color: var(--cyan); }
+    
+    .card-ai::before { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+    .card-ai:hover { border-color: var(--gold); }
+
+    .card-workout::before { background: var(--red); box-shadow: 0 0 10px var(--red); }
+    .card-workout:hover { border-color: var(--red); }
+
+    .app-icon { font-size: 2rem; margin-bottom: 10px; }
+    .app-name { font-family: 'VT323', monospace; font-size: 1.5rem; letter-spacing: 1px; }
+    .app-desc { font-size: 0.85rem; color: #768390; margin-top: 4px; }
+
+body {
+  /* ... your existing body styles ... */
+  animation: appFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes appFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="hub-title">SYSTEM_OS</div>
+  <div class="hub-sub">Select Active Module</div>
+
+  <div class="grid">
+    <a href="daily.html" class="app-card card-school">
+      <div class="app-icon">🏫</div>
+      <div class="app-name">Teacher Quest</div>
+      <div class="app-desc">IWS 8-Day Schedule & Routine</div>
+    </a>
+
+    <a href="tracker.html" class="app-card card-ai">
+      <div class="app-icon">🤖</div>
+      <div class="app-name">AI Engineer Quest</div>
+      <div class="app-desc">22-Week Learning Tracker & Log</div>
+    </a>
+
+    <a href="workout.html" class="app-card card-workout">
+      <div class="app-icon">⚔️</div>
+      <div class="app-name">Fitness Quest</div>
+      <div class="app-desc">Weekly Muscle & Recovery Tracker</div>
+    </a>
+  </div>
+<script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZcgoEqrzhx0KkOP40B0r8oXjKPR2oB5X4aB4GkHryuF2eX09R2A13S9DofB1+2"></script>
+
+</body>
+</html>
