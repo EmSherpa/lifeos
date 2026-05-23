@@ -1,81 +1,287 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <title>Mingma OS | Command Center</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#06060c">
+<title>Life OS | Nexus</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-  <style>
-    :root {
-      --bg: #06060a; --surface: rgba(255,255,255,0.035); --border: rgba(255,255,255,0.1);
-      --gold: #d4a853; --cyan: #58a6ff; --red: #f85149; --text: #e8e6e1;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; }
-    body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-    .hub-title { font-family: 'VT323', monospace; font-size: 3rem; color: var(--gold); margin-bottom: 5px; text-shadow: 0 0 15px rgba(212,168,83,0.4); }
-    .hub-sub { color: #768390; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 40px; font-size: 0.8rem; }
-    
-    .grid { display: grid; gap: 20px; width: 100%; max-width: 400px; }
-    .app-card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-      padding: 20px; text-decoration: none; color: var(--text); display: flex; flex-direction: column;
-      transition: all 0.2s ease; position: relative; overflow: hidden;
-    }
-    .app-card:hover { transform: translateY(-3px); background: rgba(255,255,255,0.06); }
-    .app-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
-    
-    .card-school::before { background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
-    .card-school:hover { border-color: var(--cyan); }
-    
-    .card-ai::before { background: var(--gold); box-shadow: 0 0 10px var(--gold); }
-    .card-ai:hover { border-color: var(--gold); }
+<style>
+:root {
+  /* Holographic Sci-Fi Palette */
+  --bg: #06060c;
+  --panel: rgba(16, 18, 27, 0.6);
+  --panel-light: rgba(30, 35, 50, 0.8);
+  --border: rgba(0, 243, 255, 0.15);
+  
+  /* Neon Accents */
+  --neon-blue: #00f3ff;
+  --neon-purple: #bc13fe;
+  --neon-green: #00ff9d;
+  --neon-gold: #ffb800;
+  --neon-red: #ff2a6d;
 
-    .card-workout::before { background: var(--red); box-shadow: 0 0 10px var(--red); }
-    .card-workout:hover { border-color: var(--red); }
+  --text-main: #e2f1ff;
+  --text-dim: #6b82a6;
 
-    .app-icon { font-size: 2rem; margin-bottom: 10px; }
-    .app-name { font-family: 'VT323', monospace; font-size: 1.5rem; letter-spacing: 1px; }
-    .app-desc { font-size: 0.85rem; color: #768390; margin-top: 4px; }
+  --font-ui: 'Rajdhani', sans-serif;
+  --font-data: 'Share Tech Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 body {
-  animation: appFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  background: var(--bg);
+  background-image: 
+    radial-gradient(circle at 15% 0%, rgba(0, 243, 255, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 100%, rgba(188, 19, 254, 0.08) 0%, transparent 40%);
+  color: var(--text-main);
+  font-family: var(--font-ui);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
 }
 
-@keyframes appFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* CRT Scanlines Overlay */
+body::after {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 2;
+  background-size: 100% 4px, 6px 100%;
+  pointer-events: none;
 }
 
-  </style>
+#app {
+  width: 100%;
+  max-width: 430px;
+  padding: 20px 16px 40px;
+  position: relative;
+  z-index: 3;
+  animation: bootUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes bootUp {
+  0% { opacity: 0; transform: scale(0.95) translateY(20px); filter: blur(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+}
+
+/* ── GLITCH HEADER ── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  position: relative;
+}
+.header::after {
+  content: ''; position: absolute; bottom: -1px; left: 0; width: 40px; height: 2px; background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue);
+}
+.os-title { font-size: 1.2rem; font-weight: 700; letter-spacing: 4px; color: var(--neon-blue); text-transform: uppercase; display: flex; align-items: center; gap: 8px;}
+.clock { font-family: var(--font-data); font-size: 1.2rem; color: var(--text-main); text-shadow: 0 0 8px rgba(226, 241, 255, 0.4);}
+
+/* ── PLAYER BANNER (RPG Profile) ── */
+.player-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0, 243, 255, 0.05), 0 8px 32px rgba(0,0,0,0.4);
+}
+.player-card::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  transform: skewX(-20deg); animation: shine 4s infinite;
+}
+@keyframes shine { 0% { left: -100%; } 20%, 100% { left: 200%; } }
+
+.profile-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
+.name-plate h1 { font-size: 2rem; font-weight: 700; line-height: 1; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;}
+.name-plate p { font-family: var(--font-data); font-size: 0.8rem; color: var(--neon-blue); letter-spacing: 2px;}
+
+/* Glowing Level Hexagon */
+.level-badge {
+  width: 60px; height: 60px;
+  background: rgba(188, 19, 254, 0.1);
+  border: 2px solid var(--neon-purple);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: 0 0 15px var(--neon-purple);
+  animation: pulse-glow 2s infinite alternate;
+}
+@keyframes pulse-glow { from { box-shadow: 0 0 5px var(--neon-purple); } to { box-shadow: 0 0 20px var(--neon-purple); } }
+.lvl-val { font-family: var(--font-data); font-size: 1.4rem; font-weight: bold; color: #fff; line-height: 1;}
+.lvl-lbl { font-size: 0.6rem; color: var(--neon-purple); font-weight: 700; letter-spacing: 1px;}
+
+/* Circular Stats */
+.stats-grid { display: flex; justify-content: space-between; }
+.stat-circle-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+/* The CSS Trick for Circular Progress */
+.circle-progress {
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.circle-progress::before {
+  content: ''; position: absolute; inset: 4px; background: var(--bg); border-radius: 50%;
+}
+.circle-val { position: relative; font-family: var(--font-data); font-size: 0.85rem; font-weight: bold;}
+.stat-name { font-size: 0.7rem; color: var(--text-dim); letter-spacing: 1px; font-weight: 600;}
+
+/* Dynamic Ring Colors (Using Conic Gradients) */
+.ring-int { background: conic-gradient(var(--neon-gold) 85%, rgba(255,255,255,0.1) 0); box-shadow: 0 0 10px rgba(255,184,0,0.3); }
+.ring-int .circle-val { color: var(--neon-gold); }
+
+.ring-cha { background: conic-gradient(var(--neon-blue) 60%, rgba(255,255,255,0.1) 0); box-shadow: 0 0 10px rgba(0,243,255,0.3); }
+.ring-cha .circle-val { color: var(--neon-blue); }
+
+.ring-str { background: conic-gradient(var(--neon-red) 40%, rgba(255,255,255,0.1) 0); box-shadow: 0 0 10px rgba(255,42,109,0.3); }
+.ring-str .circle-val { color: var(--neon-red); }
+
+.ring-wlt { background: conic-gradient(var(--neon-green) 72%, rgba(255,255,255,0.1) 0); box-shadow: 0 0 10px rgba(0,255,157,0.3); }
+.ring-wlt .circle-val { color: var(--neon-green); }
+
+/* ── LAUNCHPAD (App Grid) ── */
+.section-title {
+  font-size: 0.85rem; color: var(--text-dim); letter-spacing: 3px; text-transform: uppercase; margin: 30px 0 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title::before, .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.launch-grid { display: flex; flex-direction: column; gap: 12px; }
+
+.launch-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+.launch-card:active { transform: scale(0.96); background: var(--panel-light); }
+
+.launch-icon {
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  background: rgba(255,255,255,0.03);
+  position: relative;
+}
+.launch-info { flex: 1; }
+.app-name { font-size: 1.3rem; font-weight: 700; color: var(--text-main); letter-spacing: 1px; line-height: 1.1; margin-bottom: 4px; text-transform: uppercase;}
+.app-status { font-family: var(--font-data); font-size: 0.75rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px;}
+
+.launch-arrow { color: var(--text-dim); font-size: 1.2rem; transition: transform 0.2s; }
+.launch-card:hover .launch-arrow { transform: translateX(5px); color: var(--neon-blue); }
+
+/* Specific Module Styling */
+.card-ai { border-left: 3px solid var(--neon-gold); }
+.card-ai .launch-icon { color: var(--neon-gold); box-shadow: inset 0 0 15px rgba(255,184,0,0.1); }
+.card-ai .app-status::before { content:''; width:6px; height:6px; background:var(--neon-gold); border-radius:50%; box-shadow:0 0 5px var(--neon-gold);}
+
+.card-teach { border-left: 3px solid var(--neon-blue); }
+.card-teach .launch-icon { color: var(--neon-blue); box-shadow: inset 0 0 15px rgba(0,243,255,0.1); }
+.card-teach .app-status::before { content:''; width:6px; height:6px; background:var(--neon-blue); border-radius:50%; box-shadow:0 0 5px var(--neon-blue); animation: blink 1s infinite;}
+
+.card-fit { border-left: 3px solid var(--neon-red); }
+.card-fit .launch-icon { color: var(--neon-red); box-shadow: inset 0 0 15px rgba(255,42,109,0.1); }
+.card-fit .app-status::before { content:''; width:6px; height:6px; background:var(--neon-red); border-radius:50%; box-shadow:0 0 5px var(--neon-red);}
+
+.card-coin { border-left: 3px solid var(--neon-green); }
+.card-coin .launch-icon { color: var(--neon-green); box-shadow: inset 0 0 15px rgba(0,255,157,0.1); }
+.card-coin .app-status::before { content:''; width:6px; height:6px; background:var(--neon-green); border-radius:50%; box-shadow:0 0 5px var(--neon-green);}
+
+@keyframes blink { 0%,100% {opacity:1;} 50% {opacity:0.3;} }
+</style>
 </head>
 <body>
 
-  <div class="hub-title">LIFE_OS</div>
-  <div class="hub-sub">Select Active Module</div>
-
-  <div class="grid">
-    <a href="daily.html" class="app-card card-school">
-      <div class="app-icon">🏫</div>
-      <div class="app-name">Teacher Quest</div>
-      <div class="app-desc">IWS 8-Day Schedule & Routine</div>
-    </a>
-
-    <a href="tracker.html" class="app-card card-ai">
-      <div class="app-icon">🤖</div>
-      <div class="app-name">AI Engineer Quest</div>
-      <div class="app-desc">22-Week Learning Tracker & Log</div>
-    </a>
-
-    <a href="workout.html" class="app-card card-workout">
-      <div class="app-icon">⚔️</div>
-      <div class="app-name">Fitness Quest</div>
-      <div class="app-desc">Weekly Muscle & Recovery Tracker</div>
-    </a>
+<div id="app">
+  
+  <div class="header">
+    <div class="os-title"><i class="ph-fill ph-hexagon"></i> LIFe OS</div>
+    <div class="clock" id="live-time">00:00:00</div>
   </div>
-<script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZcgoEqrzhx0KkOP40B0r8oXjKPR2oB5X4aB4GkHryuF2eX09R2A13S9DofB1+2"></script>
 
+  <div class="section-title">Select Application</div>
+
+  <div class="launch-grid">
+    
+    <a href="tracker.html" class="launch-card card-ai">
+      <div class="launch-icon"><i class="ph-duotone ph-cpu"></i></div>
+      <div class="launch-info">
+        <div class="app-name">AI Engineer</div>
+        <div class="app-status">Phase 2: Backend</div>
+      </div>
+      <i class="ph-bold ph-caret-right launch-arrow"></i>
+    </a>
+
+    <a href="daily.html" class="launch-card card-teach">
+      <div class="launch-icon"><i class="ph-duotone ph-chalkboard-teacher"></i></div>
+      <div class="launch-info">
+        <div class="app-name">Teacher Quest</div>
+        <div class="app-status">IWS Schedule Live</div>
+      </div>
+      <i class="ph-bold ph-caret-right launch-arrow"></i>
+    </a>
+
+    <a href="finance.html" class="launch-card card-coin">
+      <div class="launch-icon"><i class="ph-duotone ph-wallet"></i></div>
+      <div class="launch-info">
+        <div class="app-name">Ledger OS</div>
+        <div class="app-status">Tracking Wealth</div>
+      </div>
+      <i class="ph-bold ph-caret-right launch-arrow"></i>
+    </a>
+
+    <a href="workout.html" class="launch-card card-fit">
+      <div class="launch-icon"><i class="ph-duotone ph-barbell"></i></div>
+      <div class="launch-info">
+        <div class="app-name">Fitness Core</div>
+        <div class="app-status">Hypertrophy Active</div>
+      </div>
+      <i class="ph-bold ph-caret-right launch-arrow"></i>
+    </a>
+
+  </div>
+
+</div>
+
+<script>
+  function updateTime() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('live-time').textContent = `${h}:${m}:${s}`;
+  }
+  updateTime();
+  setInterval(updateTime, 1000);
+</script>
+<script src="//instant.page/5.2.0" type="module" integrity="sha384-jnZcgoEqrzhx0KkOP40B0r8oXjKPR2oB5X4aB4GkHryuF2eX09R2A13S9DofB1+2"></script>
 </body>
 </html>
