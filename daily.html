@@ -344,16 +344,19 @@
     const today = days[new Date().getDay()];
     let icon = '', label = '', text = '';
 
-    if (today === "Wednesday") {
-      icon = '🌟'; label = 'SERVER EVENT · ' + today.toUpperCase();
+    if (today === "Monday") {
+      icon = '☕'; label = 'SERVER EVENT · ' + today.toUpperCase();
       text = 'Advisory · 9:25 – 10:05';
-    } else if (today === "Thursday" || today === "Friday") {
+    }else if (today === "Wednesday") {
+      icon = '🌟'; label = 'SERVER EVENT · ' + today.toUpperCase();
+      text = 'Exploratory(Barun|Mechi) · 9:25 – 10:05';
+    } else if (today === "Friday") {
       icon = '✨'; label = 'SERVER EVENT · ' + today.toUpperCase();
-      text = 'Exploratory · 9:25 – 10:05';
+      text = 'Exploratory(Mahakali|Karnali) · 9:25 – 10:05';
     }
     else if (today === "Saturday") {
       icon = '🎙️'; label = 'WEEKEND';
-      text = 'Special activities and mini-games all day!';
+      text = 'Read, Train, and Rest · 8:15 – 4:15';
     }
 
     if (text) {
