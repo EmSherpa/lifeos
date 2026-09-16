@@ -44,6 +44,7 @@ body{background:var(--bg);min-height:100vh;font-family:var(--mono);color:var(--t
 .stat-num{font-family:var(--display);font-size:2.15rem;color:var(--gold);line-height:1}
 .stat-lbl{font-size:.68rem;font-weight:700;color:var(--muted);letter-spacing:1.7px;margin-top:5px;text-transform:uppercase}
 .nav{display:flex;gap:6px;padding:6px;margin-top:22px;border-radius:14px}
+.nav-back{font-size:.9rem;color:var(--muted);text-decoration:none;letter-spacing:1px;font-weight:1000;flex-shrink:0;transition:.2s}.nav-back:hover{color:var(--gold-hi)}
 .nav-btn{flex:1;padding:11px 8px;border-radius:10px;border:none;font-family:var(--display);font-size:1.18rem;cursor:pointer;transition:.25s;letter-spacing:1.5px;text-transform:uppercase}
 .nav-btn.active{background:var(--gold);color:#0a0808;box-shadow:0 4px 20px rgba(212,168,83,.35)}
 .nav-btn:not(.active){background:transparent;color:var(--muted)}.nav-btn:not(.active):hover{color:var(--gold-hi);background:var(--gold-dim)}
@@ -164,6 +165,7 @@ function render(){
  document.getElementById("app").innerHTML=`
  <div class="header">
   <div class="header-row">
+        <a href="index.html" class="nav-back">← HUB MENU</a>
    <div><div class="wordmark">PYTHON → BACKEND → CLOUD</div><div class="wordmark-sub">Mingma's Technical Career Quest · 24 Weeks</div></div>
    <div class="level-plate"><div class="level-name">${L.icon} ${L.title}</div><div class="level-xp">${X.toLocaleString()} XP</div></div>
   </div>
